@@ -1,6 +1,7 @@
 package com.jie.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
@@ -12,9 +13,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
 
+    @NotBlank(message = "用户名不能为空")
     @Column(name = "username", nullable = false)
     private String username;
 
+    @NotBlank(message = "密码不能为空")
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -24,10 +27,18 @@ public class User {
     @Column(name = "phone")
     private String phone;
 
-    @Column
+    @Column(name = "gmt_creat")
     private LocalDateTime gmtCreat;
 
     public User() {
+    }
+
+    public User(String username, String password, String email, String phone, LocalDateTime gmtCreat) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.phone = phone;
+        this.gmtCreat = gmtCreat;
     }
 
     public int getUserId() {
