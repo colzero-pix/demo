@@ -42,17 +42,16 @@ public class UserController {
 
     //登录账户
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         LoginResponseDTO response = authService.authenticateUser(loginDTO);
         return ResponseEntity.ok(response);
     }
 
     //获取用户信息
     @GetMapping("/{userId}")
-    public String getUserInfo(@PathVariable(name = "userId") int userId) throws Exception {
-        User user = new User();
-        user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("未找到ID用户:" + userId));
-        return user.toString();
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getUserInfo(@PathVariable(name = "userId") int userId) throws Exception {
+        return userService.getUserInfo(userId);
     }
 
     //更新用户信息

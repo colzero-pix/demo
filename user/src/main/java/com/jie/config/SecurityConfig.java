@@ -37,8 +37,16 @@ public class SecurityConfig {
                 .requestCache(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorize) -> {
-//                    authorize.requestMatchers("/user/login", "/user/register").permitAll();
-                    authorize.requestMatchers("/user/reset-password").authenticated();
+
+                    authorize.requestMatchers(
+                            "/user/login",
+                            "/user/register"
+                    ).permitAll();
+
+                    authorize.requestMatchers(
+                            "/user/reset-password",
+                            "/user/{userId}"
+                    ).authenticated();
 
                     authorize.anyRequest().permitAll();
                 })
