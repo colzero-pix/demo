@@ -12,7 +12,7 @@ public class Role {
     @Column(name = "role_id", nullable = false)
     private int roleId;
 
-    @Column(name = "role", nullable = false)
+    @Column(name = "role_code", nullable = false)
     private String role;
 
     public Role() {

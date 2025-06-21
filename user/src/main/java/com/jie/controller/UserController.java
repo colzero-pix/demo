@@ -1,6 +1,7 @@
 package com.jie.controller;
 
 
+import com.jie.model.dto.ChangePasswordDTO;
 import com.jie.model.dto.LoginDTO;
 import com.jie.model.dto.LoginResponseDTO;
 import com.jie.model.dto.UserDTO;
@@ -11,6 +12,7 @@ import com.jie.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -56,12 +58,20 @@ public class UserController {
     //更新用户信息
     @PutMapping("/{userId}")
     public String updateUserInfo() {
+
+
         return "success4";
     }
 
     //修改用户密码
     @PostMapping("/reset-password")
-    public String updatePassword() {
-        return "success5";
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> updatePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        try {
+            String newPassword = userService.changePassword(changePasswordDTO);
+            return ResponseEntity.ok(newPassword);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

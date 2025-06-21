@@ -21,10 +21,12 @@ public class JwtUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(name)
                 .orElseThrow(() -> new UsernameNotFoundException("未找到用户:" + name));
 
+        String role = "admin".equals(user.getUsername()) ? "ROLE_ADMIN" : "ROLE_USER";
+
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
-                .authorities("ROLE_USER")
+                .authorities(role)
                 .accountExpired(false)
                 .accountLocked(false)
                 .credentialsExpired(false)

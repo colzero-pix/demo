@@ -11,7 +11,7 @@ public class LoginDTO {
     private String password;
 
     public String getUsername() {
-        return this.username;
+        return username;
     }
 
     public void setUsername(String username) {
@@ -19,7 +19,7 @@ public class LoginDTO {
     }
 
     public String getPassword() {
-        return this.password;
+        return password;
     }
 
     public void setPassword(String password) {

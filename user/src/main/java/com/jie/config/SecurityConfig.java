@@ -37,8 +37,9 @@ public class SecurityConfig {
                 .requestCache(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorize) -> {
-//                    authorize.requestMatchers("user/login", "/user/register").permitAll();
-//                    authorize.requestMatchers("/**").authenticated();
+//                    authorize.requestMatchers("/user/login", "/user/register").permitAll();
+                    authorize.requestMatchers("/user/reset-password").authenticated();
+
                     authorize.anyRequest().permitAll();
                 })
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
