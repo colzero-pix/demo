@@ -1,6 +1,7 @@
 package com.jie.service;
 
 import com.jie.model.dto.ChangePasswordDTO;
+import com.jie.model.dto.InfoChangeDTO;
 import com.jie.model.dto.UserDTO;
 import com.jie.model.dto.UserInfoDTO;
 import com.jie.model.entity.User;
@@ -95,6 +96,33 @@ public class UserService {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+
+    }
+
+    public ResponseEntity<?> changeInfo(int userId, InfoChangeDTO infoChangeDTO) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentUsername = authentication.getName();
+
+            User targetUser = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("查询ID不存在：" + userId));
+
+            if(!targetUser.getUsername().equals(currentUsername)) {
+                boolean isAdmin = authentication.getAuthorities().stream()
+                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+
+                if(!isAdmin) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("无权修改该ID用户信息");
+                }
+            }
+
+            targetUser.setEmail(infoChangeDTO.getEmail());
+            targetUser.setPhone(infoChangeDTO.getPhone());
+
+            return ResponseEntity.ok(targetUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+
 
     }
 

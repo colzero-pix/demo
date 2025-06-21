@@ -1,10 +1,7 @@
 package com.jie.controller;
 
 
-import com.jie.model.dto.ChangePasswordDTO;
-import com.jie.model.dto.LoginDTO;
-import com.jie.model.dto.LoginResponseDTO;
-import com.jie.model.dto.UserDTO;
+import com.jie.model.dto.*;
 import com.jie.model.entity.User;
 import com.jie.repository.UserRepository;
 import com.jie.service.AuthService;
@@ -56,10 +53,9 @@ public class UserController {
 
     //更新用户信息
     @PutMapping("/{userId}")
-    public String updateUserInfo() {
-
-
-        return "success4";
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> updateUserInfo(@PathVariable(name = "userId") int id,@RequestBody InfoChangeDTO infoChangeDTO) {
+        return userService.changeInfo(id, infoChangeDTO);
     }
 
     //修改用户密码
