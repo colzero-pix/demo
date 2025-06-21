@@ -1,9 +1,12 @@
 package com.jie.controller;
 
 
+import com.jie.model.dto.LoginDTO;
+import com.jie.model.dto.LoginResponseDTO;
 import com.jie.model.dto.UserDTO;
 import com.jie.model.entity.User;
 import com.jie.repository.UserRepository;
+import com.jie.service.AuthService;
 import com.jie.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +23,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AuthService authService;
+
 
     //注册账户
     @PostMapping("/register")
@@ -34,19 +40,16 @@ public class UserController {
 
     //登录账户
     @PostMapping("/login")
-    public String login() {
-        return "success2";
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO) {
+        LoginResponseDTO response = authService.authenticateUser(loginDTO);
+        return ResponseEntity.ok(response);
     }
 
     //获取用户信息
     @GetMapping("/{userId}")
-    public String getUserInfo(@PathVariable(name = "userId") int userId) {
+    public String getUserInfo(@PathVariable(name = "userId") int userId) throws Exception {
         User user = new User();
-        user = userRepository.findByUserId(userId);
-//        user.setUsername("jay");
-//        user.setPassword("jayPassword");
-//        user.setEmail("jay@qq.com");
-//        user.setPhone("jayPhoneNumber");
+        user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("未找到ID用户:" + userId));
         return user.toString();
     }
 
