@@ -10,6 +10,8 @@ public class UserDTO {
     @NotBlank(message = "密码不能为空")
     private String password;
 
+
+
     public String getUsername() {
         return username;
     }

@@ -5,11 +5,13 @@ public class LoginResponseDTO {
     public String token;
     public String message;
     public String username;
+    public int userId;
 
-    public LoginResponseDTO(String token, String message, String username) {
+    public LoginResponseDTO(String token, String message, String username, int userId) {
         this.token = token;
         this.message = message;
         this.username = username;
+        this.userId = userId;
     }
 
     public String getUsername() {
@@ -22,5 +24,9 @@ public class LoginResponseDTO {
 
     public String getMessage() {
         return this.message;
+    }
+
+    public int getUserId() {
+        return this.userId;
     }
 }

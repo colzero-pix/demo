@@ -1,22 +1,23 @@
 package com.jie.service;
 
+import com.jie.exception.ForbiddenException;
+import com.jie.exception.UserNotFoundException;
+import com.jie.exception.UsernameAlreadyExistsException;
 import com.jie.model.dto.ChangePasswordDTO;
 import com.jie.model.dto.InfoChangeDTO;
 import com.jie.model.dto.UserDTO;
 import com.jie.model.dto.UserInfoDTO;
 import com.jie.model.entity.User;
 import com.jie.repository.UserRepository;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -34,12 +35,13 @@ public class UserService {
     public User registerNewUser(UserDTO userDTO) {
         //检查用户名是否已经存在
         if(userRepository.existsByUsername(userDTO.getUsername())) {
-            throw new RuntimeException("该用户名已经被注册，请更换用户名");
+            throw new UsernameAlreadyExistsException("该用户名已经被注册，请更换用户名");
         }
 
         User newUser = new User();
         newUser.setUsername(userDTO.getUsername());
         newUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        newUser.setGmtCreat(LocalDateTime.now());
         userRepository.save(newUser);
 
         return newUser;
@@ -75,14 +77,14 @@ public class UserService {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String currentUsername = authentication.getName();
 
-            User targetUser = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("查询ID不存在：" + userId));
+            User targetUser = userRepository.findByUserId(userId).orElseThrow(() -> new UserNotFoundException("查询ID不存在：" + userId));
 
             if(!targetUser.getUsername().equals(currentUsername)) {
                 boolean isAdmin = authentication.getAuthorities().stream()
                         .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
                 if(!isAdmin) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("无权访问该ID用户信息");
+                    throw new ForbiddenException("无权访问该id用户信息");
                 }
             }
 
@@ -91,7 +93,7 @@ public class UserService {
                                                     targetUser.getEmail(),
                                                     targetUser.getPhone(),
                                                     targetUser.getGmtCreat());
-            
+
             return ResponseEntity.ok(targetInfo);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -122,15 +124,13 @@ public class UserService {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
-
     }
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    public Optional<User> findById(Long id) {
+    public Optional<User> findById(int id) {
         return userRepository.findById(id);
     }
 }

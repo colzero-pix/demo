@@ -1,6 +1,8 @@
 package com.jie.controller;
 
 
+import com.jie.exception.UnauthorizedAccessException;
+import com.jie.exception.UsernameAlreadyExistsException;
 import com.jie.model.dto.*;
 import com.jie.model.entity.User;
 import com.jie.repository.UserRepository;
@@ -32,16 +34,26 @@ public class UserController {
         try {
             User newUser = userService.registerNewUser(userDTO);
             return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        } catch (UsernameAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     //登录账户
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
-        LoginResponseDTO response = authService.authenticateUser(loginDTO);
-        return ResponseEntity.ok(response);
+        try {
+            LoginResponseDTO response = authService.authenticateUser(loginDTO);
+            return ResponseEntity.ok(response);
+        } catch (UnauthorizedAccessException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
     }
 
     //获取用户信息

@@ -1,14 +1,18 @@
 package com.jie.service;
 
+import com.jie.exception.UnauthorizedAccessException;
 import com.jie.model.dto.LoginDTO;
 import com.jie.model.dto.LoginResponseDTO;
 import com.jie.model.entity.User;
 import com.jie.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
 
 
 @Service
@@ -26,23 +30,27 @@ public class AuthService {
         this.userService = userService;
     }
 
-    //AI
     public LoginResponseDTO authenticateUser(LoginDTO loginDTO) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDTO.getUsername(),
-                        loginDTO.getPassword()
-                )
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginDTO.getUsername(),
+                            loginDTO.getPassword()
+                    )
+            );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         User user = userService.findByUsername(loginDTO.getUsername())
-                .orElseThrow(() -> new RuntimeException("用户未找到"));
+                .orElseThrow(() -> new UnauthorizedAccessException("用户未找到"));
 
         String jwt = jwtUtil.generateToken(loginDTO.getUsername());
 
-        return new LoginResponseDTO(jwt, "登录成功", user.getUsername());
+        return new LoginResponseDTO(jwt, "登录成功", user.getUsername(), user.getUserId());
+
+        }catch (BadCredentialsException e) {
+            throw new UnauthorizedAccessException("用户名或者密码错误");
+        }
     }
 
 }

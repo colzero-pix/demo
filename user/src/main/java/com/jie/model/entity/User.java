@@ -33,12 +33,12 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password, String email, String phone, LocalDateTime gmtCreat) {
+    public User(String username, String password, String email, String phone) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.phone = phone;
-        this.gmtCreat = gmtCreat;
+        this.gmtCreat = LocalDateTime.now();
     }
 
     public int getUserId() {
